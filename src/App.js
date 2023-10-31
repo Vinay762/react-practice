@@ -1,47 +1,37 @@
-import React from "react";
+import React, { useReducer } from "react";
 import './App.css'
 
-const App = () => {
-  const [time, setTime] = React.useState(0);
-  const [timerOn, setTimerOn] = React.useState(false);
+const initalState = 0;
 
-  React.useEffect(() => {
-    let interval = null;
-
-    if (timerOn) {
-      interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 10);
-      }, 10);
-    } else if (!timerOn) {
-      clearInterval(interval);
+const reducer = (state, action) => {
+  switch(action){
+    case 'increment' : {
+      return state + 1
     }
+    case 'decrement' : {
+      return state -1;
+    }
+    case 'reset' : {
+      return 0;
+    }
+    default : {
+      return state
+    }
+  }
+}
 
-    return () => clearInterval(interval);
-  }, [timerOn]);
+const App = () => {
 
+  const [count, dispatch] = useReducer(reducer, initalState);
+ 
   return (
-    <div className="Timers">
-      <h2>Stopwatch</h2>
-      <div id="display">
-        <span>{("0" + Math.floor((time / 60000) % 60)).slice(-2)}:</span>
-        <span>{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:</span>
-        <span>{("0" + ((time / 10) % 100)).slice(-2)}</span>
-      </div>
-
-      <div id="buttons">
-        {!timerOn && time === 0 && (
-          <button onClick={() => setTimerOn(true)}>Start</button>
-        )}
-        {timerOn && <button onClick={() => setTimerOn(false)}>Stop</button>}
-        {!timerOn && time > 0 && (
-          <button onClick={() => setTime(0)}>Reset</button>
-        )}
-        {!timerOn && time > 0 && (
-          <button onClick={() => setTimerOn(true)}>Resume</button>
-        )}
-      </div>
-    </div>
-  );
-};
+    <>
+      <h1>Count : {count}</h1>
+      <button onClick={() => dispatch('increment')}>Increment By 1</button>
+      <button onClick={() => dispatch('decrement')}>Decrement By 1</button>
+      <button onClick={() => dispatch('reset')}>Reset To 0</button>
+    </>
+  )
+}
 
 export default App;

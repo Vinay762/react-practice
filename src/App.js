@@ -1,92 +1,47 @@
+import React from "react";
+import './App.css'
 
-import { useState, useEffect } from 'react';
-import './App.css';
+const App = () => {
+  const [time, setTime] = React.useState(0);
+  const [timerOn, setTimerOn] = React.useState(false);
 
-function App() {
-  const [formData, setFormData] = useState({
-    name : '',
-    email : '',
-    password : '',
-  })
+  React.useEffect(() => {
+    let interval = null;
 
-  const [users, setUsers] = useState([]);
-
-  const handleChange = (e) => {
-    const {name, value} = e.target;
-    setFormData({
-      ...formData,
-      [name] : value,
-    });
-  }
-
-  useEffect(() => {
-    // Fetch user data from localStorage on component mount
-    const storedUsers = JSON.parse(localStorage.getItem('users'));
-    if (storedUsers) {
-      setUsers(storedUsers);
+    if (timerOn) {
+      interval = setInterval(() => {
+        setTime((prevTime) => prevTime + 10);
+      }, 10);
+    } else if (!timerOn) {
+      clearInterval(interval);
     }
-  }, []); 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newUser = {...formData};
-    const updatedUser = [...users, newUser];
-
-    localStorage.setItem('users', JSON.stringify(updatedUser))
-    setUsers(updatedUser);
-
-    console.log(formData);
-    setFormData({
-      name : '',
-      email : '',
-      password : '',
-    })
-  }
+    return () => clearInterval(interval);
+  }, [timerOn]);
 
   return (
-    <div className="App">
-      <form onSubmit={handleSubmit}>
-        <label>Enter the name</label>
-        <input type='text' name='name' value={formData.name} onChange={handleChange} />
-
-        <label>Enter the Email</label>
-        <input type='email' name='email' value={formData.email} onChange={handleChange} />
-
-
-        <label>Enter the Password</label>
-        <input type='password' name='password' value={formData.password} onChange={handleChange} />
-
-        <button type='submit'>Submit</button>
-
-      </form>
-
-
-
-      <div>
-        <h2>User Data:</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Password</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user, index) => (
-              <tr key={index}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.password}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="Timers">
+      <h2>Stopwatch</h2>
+      <div id="display">
+        <span>{("0" + Math.floor((time / 60000) % 60)).slice(-2)}:</span>
+        <span>{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:</span>
+        <span>{("0" + ((time / 10) % 100)).slice(-2)}</span>
       </div>
 
+      <div id="buttons">
+        {!timerOn && time === 0 && (
+          <button onClick={() => setTimerOn(true)}>Start</button>
+        )}
+        {timerOn && <button onClick={() => setTimerOn(false)}>Stop</button>}
+        {!timerOn && time > 0 && (
+          <button onClick={() => setTime(0)}>Reset</button>
+        )}
+        {!timerOn && time > 0 && (
+          <button onClick={() => setTimerOn(true)}>Resume</button>
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
